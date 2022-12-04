@@ -11,7 +11,7 @@ const Ventas = () => {
         getSalaProductos()
     },[])
 
-
+const estado = 0;
     const getSalaProductos = async ()=>{
         await axios.get(`/api/salas-producto/${modo}`).then(response=>{
             setSalaProductos(response.data)
@@ -36,13 +36,34 @@ const Ventas = () => {
     const onInputChange = (e) => {
         setForm({ ...form, [e.target.name]: e.target.value });
     };
+    const handleUpdateClick = (data) => {
+        setForm({ updateId: data.id, id_sala: data.id_sala, id_productos: data.id_producto, cantidad: data.cantidad });
+      };
 
+      const handleDelete = async (id) => {
+        try {
+          await axios.post(`/salas-productos-cambio-estado/${id}`);
+          getSalaProductos();
+        } catch (e) {
+          console.log("error"+ e)
+        }
+      };
     const handleSubmit = async (e) => {
         e.preventDefault();
         try {
+        if (form.updateId) {
+            await axios.post(`/api/salas-productos-update/${form.updateId}`, {
+              id_sala: form.id_sala,
+              id_productos: form.id_productos,
+              cantidad:  form.cantidad
+            });
+            getSalaProductos();
+        }else{
             await axios.post("/api/salas-productos-create", form);
             setForm({ id_sala: "", id_productos: "", cantidad: "" });
             getSalaProductos()
+        }
+            
         } catch (e) {
             console.log("error" + e)
         }
@@ -87,7 +108,7 @@ const Ventas = () => {
                               onChange={onInputChange}
                             />
                         
-                            <button className='btn btn-success mt-2'>Registrar</button>
+                            <button className='btn btn-success mt-2'>{form.updateId ? "Editar":"Crear"}</button>
                         </form>
                     </div>
                 </div>
@@ -105,18 +126,42 @@ const Ventas = () => {
                             </tr>
                         </thead>
                         <tbody>
-                            {
-                                 salaProductos.map(element=>(
-                                    <tr>
-                                      <td>{element.id_sala_producto}</td>
-                                      <td>{element.nombre}</td>
-                                      <td>{element.cantidad}</td>
-                                      <td>{element.nombre_sala}</td>
-                                      <td><button className='btn btn-danger'>Eliminar</button></td>
-                                      <td><button className='btn btn-primary'>Editar</button></td>
-                                    </tr>
-                                  ))
-                            }
+                        {salaProductos.length > 0 ? (
+                  <>
+                    {salaProductos.map((row, index) => (
+                      <tr key={`row${index}`}>
+                        <td>{row.id_sala_producto}</td>
+                        <td>{row.nombre}</td>
+                        <td>{row.cantidad}</td>
+                        <td>{row.nombre_sala}</td>
+                        <td>
+                          <button
+                            className="btn btn-success"
+                            onClick={() => {
+                              handleUpdateClick(row);
+                            }}
+                          >
+                            Editar
+                          </button>
+                        </td>
+                        <td>
+                          <button
+                            className="btn btn-danger"
+                            onClick={() => {
+                              handleDelete(row.id_sala_producto);
+                            }}
+                          >
+                            Eliminar
+                          </button>
+                        </td>
+                      </tr>
+                    ))}
+                  </>
+                ) : (
+                  <tr colSpan={2}>
+                    <td>No hay ningún usuario</td>
+                  </tr>
+                )}
                         </tbody>
                     </table>
                 </div>

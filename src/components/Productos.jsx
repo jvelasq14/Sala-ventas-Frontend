@@ -27,7 +27,7 @@ const Productos = () => {
     const onInputChange = (e) => {
         setForm({ ...form, [e.target.name]: e.target.value });
     };
-
+ 
     const handleSubmit = async (e) => {
         e.preventDefault();
         try {
@@ -101,8 +101,8 @@ const Productos = () => {
                                 <tr>
                                   <td>{element.id_producto}</td>
                                   <td>{element.nombre}</td>
-                                  <td>{element.precio}</td>
                                   <td>{element.nombre_categoria}</td>
+                                  <td>{element.precio}</td>
                                   <td><button className='btn btn-danger'>Eliminar</button></td>
                                   <td><button className='btn btn-primary'>Editar</button></td>
                                 </tr>
